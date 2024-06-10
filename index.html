@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Page Flip Js</title>
+	<link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+
+<div id="book">
+<!--	<div class="my-page firstPage" data-density="soft" id="firstPage">-->
+<!--		<div class="center">-->
+<!--			<h1>-->
+<!--				History Book-->
+<!--			</h1>-->
+<!--&lt;!&ndash;			<p class="">&ndash;&gt;-->
+<!--&lt;!&ndash;				History (from Greek ἱστορία, historia, meaning 'inquiry; knowledge acquired by investigation') is the study&ndash;&gt;-->
+<!--&lt;!&ndash;				of the past. Events occurring before the invention of writing systems are considered prehistory. "History"&ndash;&gt;-->
+<!--&lt;!&ndash;				is an umbrella term that relates to past events as well as the memory, discovery, collection, organization,&ndash;&gt;-->
+<!--&lt;!&ndash;				presentation, and interpretation of information about these events. Scholars who focus on history are called&ndash;&gt;-->
+<!--&lt;!&ndash;				historians. The historian's role is to place the past in context, using sources from moments and events, and&ndash;&gt;-->
+<!--&lt;!&ndash;				filling in the gaps to the best of their ability. Written documents are not the only sources historians use&ndash;&gt;-->
+<!--&lt;!&ndash;				to develop their understanding of the past. They also use material objects, oral accounts, ecological&ndash;&gt;-->
+<!--&lt;!&ndash;				markers, art, and artifacts as historical sources.&ndash;&gt;-->
+<!--&lt;!&ndash;			&ndash;&gt;-->
+<!--&lt;!&ndash;			&ndash;&gt;-->
+<!--&lt;!&ndash;			</p>&ndash;&gt;-->
+<!--		</div>-->
+<!--	</div>-->
+<!--	-->
+	
+	<div class="my-page">
+		<img src="img/page1.png" alt="">
+	</div>
+	
+	
+	<div class="my-page">
+		<img src="img/page2.png" alt="">
+	</div>
+	
+	<div class="my-page">
+		<img src="img/page3.png" alt="">
+	</div>
+	
+	<div class="my-page">
+		<img src="img/page4.png" alt="">
+	</div>
+	
+	
+	<div class="my-page">
+		<img src="img/page5.png" alt="">
+	</div>
+	
+	
+	<div class="my-page">
+		<img src="img/page6.png" alt="">
+	</div>
+	
+	<div class="my-page">
+		<img src="img/page7.png" alt="">
+	</div>
+	
+	<div class="my-page">
+		<img src="img/page8.png" alt="">
+	</div>
+	
+	
+	
+	<div class="my-page">
+		<img src="img/page9.png" alt="">
+	</div>
+	
+	
+	<div class="my-page">
+		<img src="img/page10.png" alt="">
+	</div>
+	
+	<div class="my-page">
+		<img src="img/page11.png" alt="">
+	</div>
+	
+	<div class="my-page"  data-density="soft" >
+		<img src="img/page12.png" alt="">
+	</div>
+	
+	<div class="my-page" data-density="soft" >
+		<img src="img/page1.png" alt="">
+	</div>
+	
+	
+	<div class="my-page" data-density="soft" >
+		<img src="img/page2.png" alt="">
+	</div>
+	
+	
+	
+</div>
+
+
+<script src="js/page-flip.browser.js"></script>
+
+<script>
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const width = Number(window.innerWidth),
+            height = Number(window.innerHeight) * 2;
+
+        // console.log(width, height);
+        let bookContainer=document.getElementById('book');
+        const pageFlip = new St.PageFlip(bookContainer,
+            {
+                width: width, // base page width
+                height: height, // base page height
+                showCover: false,
+                size: 'stretch',
+                drawShadow: false,
+                mobileScrollSupport: false
+            }
+        );
+
+        let allPages = document.querySelectorAll('.my-page'),
+	         pageLengthAcordIndex = allPages.length - 1,
+	         prevInterval;
+
+        // triggered by page turning
+        pageFlip.on("flip", (e) => {
+           // console.log('page flip',e.object.pages.currentPageIndex);
+            
+            if(e.object.pages.currentPageIndex===pageLengthAcordIndex-1){
+                pageFlip.turnToPage(0);
+                return;
+            }
+            
+            // if(e.object.pages.currentPageIndex > 0){
+        // add timeout for a new page to curl up a little evry 20 secondes
+                clearInterval(prevInterval);
+                prevInterval=setInterval(()=>{
+                    // console.log('================= start moving ===============');
+
+                    move(bookContainer.clientWidth,0,150,false);
+
+                    let movePageBackTimeout=setTimeout(()=>{
+                        // console.log('=================moving back===============');
+                        move(bookContainer.clientWidth-150,150,160,true);
+                        clearTimeout(movePageBackTimeout);
+                    },400);
+                },20000);
+            // }
+        });
+
+	     
+        // // triggered when the state of the book changes
+        pageFlip.on("changeState", (e) => {
+            let ab = e.object;
+
+            // console.log(ab);
+
+            //give time to finalize all data and return. if timeout is not set then sometime data returns delays and we get empty state
+            let timeoutPageTurnChecker = setTimeout(() => {
+                if (e.object.flipController.flippingPage) {
+                    if (e.data === 'user_fold' &&
+                        pageFlip.getCurrentPageIndex() === 1 &&
+                        e.object.flipController.flippingPage.element.classList.contains('firstPage')) {
+
+                        pageFlip.flip(0, 'top');
+                    } else if (e.data === 'user_fold' &&
+                        pageFlip.getCurrentPageIndex() === pageLengthAcordIndex - 2 &&
+                        e.object.flipController.flippingPage.element.classList.contains('lastPage')
+                    ) {
+                        pageFlip.flip(pageLengthAcordIndex, 'top');
+                    }
+                }
+                
+                clearTimeout(timeoutPageTurnChecker);
+            }, 10);
+
+
+            
+            
+            if (e.object.flipController.flippingPage) {
+                if (e.data === 'user_fold' &&
+                    pageFlip.getCurrentPageIndex() === 1 &&
+                    e.object.flipController.flippingPage.element.classList.contains('firstPage')
+                ) {
+                    pageFlip.flip(0, 'top');
+                }
+            }
+            
+            if(ab.pages.currentPageIndex>=0){
+	             
+                // console.log(element.clientWidth,0);
+                // console.log(element.clientWidth-5,0+5);
+                // console.log(element.clientWidth-10,0+10);
+                // console.dir(element.clientHeight);
+              
+	         }
+            
+            
+            
+
+        });
+
+
+        // // triggered when page orientation changes
+        // pageFlip.on("changeOrientation", (e) => {
+        //     document.querySelector(".page-orientation").innerText = e.data;
+        // });
+
+        // pageFlip.loadFromImages(['img/page1.png','img/page2.png','img/page3.png','img/page4.png','img/page5.png','img/page6.png','img/page7.png','img/page8.png']);
+
+        pageFlip.loadFromHTML(allPages);
+    });
+
+
+    function move(currentX,currentY,limit,moveBack) {
+        
+        // Create new mouse event
+        let ev = new MouseEvent("mousemove", {
+            view: window,
+            bubbles: true,
+            cancelable: true,
+            clientX: currentX,
+            clientY: currentY
+        });
+
+        let elements=document.querySelectorAll('.--right'),moveTimeout;
+        // Send event
+        elements[elements.length-1].dispatchEvent(ev);
+        // If the current position of the fake "mouse" is less than the width of the screen - let's move
+        if (currentY < limit && !moveBack) {
+            moveTimeout=setTimeout(() => {
+                // console.log('----------- timeout Forward 1-----------')
+                move(currentX-5,currentY+5,limit,moveBack);
+                clearTimeout(moveTimeout);
+            }, 10);
+        }else if (currentY > 0 && moveBack) {
+            moveTimeout=setTimeout(() => {
+                // console.log('----------- timeout Backward 2-----------')
+                move(currentX+5,currentY-5,limit,moveBack);
+                clearTimeout(moveTimeout);
+            }, 10);
+        }
+    }
+    
+</script>
+
+
+</body>
+</html>
